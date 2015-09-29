@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+    <title></title>
+
+    <link rel="stylesheet" href="css/foundation.min.css">
+    <script type="text/javascript" src="cordova.js"></script>
+    <script>
+        var socket_host = "http://localhost:3000/";
+        //var socket_host = "http://whispering-ravine-9576.herokuapp.com/";
+    </script>
+    <script src="js/socket.io.min.js"></script>
+    <script src="js/modernizr.foundation.js"></script>
+    <script type="text/javascript" src="../../../closure/closure/goog/base.js"></script>
+    <!--<script src="js/socket.io.js"></script>-->
+    <script src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/lodash.min.js"></script>
+    <scrip src="js/underscore.js"></scrip>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script src="js/socket-listener.js"></script>
+    <script type="text/javascript" src="../../stratego.js"></script>
+    <style>
+        body{ margin: 0; padding: 0;}
+        html, body {margin:0;padding:0;height:100%;width:100%; float: left; }
+        .info,.page{ display: none}
+        #login{margin-left: 0; display: block}
+        #info-window{position: fixed;z-index: 999;top: 10%;  color: #2795b6; width: 100%;}
+        .ficha-azul, .ficha-roja{background: #222;}
+        .ficha-azul{
+            margin-left: -100%;
+            -webkit-animation-name: mover;
+            -webkit-animation-duration: 4s;
+        }
+
+
+
+        .ficha-roja{
+            margin-right:-100%;
+        }
+
+
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="medium-12 columns">
+
+<!--
+        <nav>
+
+            <div class="large-12 columns">
+                <ul class="right button-group">
+                    <li><a  class="button" href="javascript:irA('#inicio')" >Login</a></li>
+                    <li><a href="#" class="button" onclick="irA('#posicion_piezas')">Posicionar piezas</a></li>
+                    <li><a href="#" class="button" onclick="irA('#inicio')">Inicio</a></li>
+                    <li><a href="#" class="button" onclick="irA('#tienda')">Tienda</a></li>
+                    <li><a href="#" class="button" onclick="irA('#top_usuarios')">TOP</a></li>
+                    <li><a href="#" class="button" onclick="prepararFichas()">Juego</a></li>
+                </ul>
+            </div>
+        </nav>
+-->
+
+    </div>
+</header>
+
+<div id="pages">
+
+    <div class="page" id="login">
+        <div align="center" style="padding: 50px">
+
+            <form>
+                <fieldset>
+                    <legend>Access User</legend>
+
+                    <label>Email:
+                        <input id="login_email" type="email" placeholder="Email" value="adriswbm@gmail.com">
+                    </label>
+                    <label>Password:
+                        <input id="login_password" type="password" value="19841984" placeholder="password">
+                    </label>
+                    <p><a href="javascript:login()" class="button large">LOGIN</a></p>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+    <div class="page" id="inicio">
+    <div class="row">
+        <div class="medium-12 columns">
+            <nav class="top-bar" data-topbar role="navigation">
+
+                <section class="top-bar-section">
+                    <!-- Right Nav Section -->
+                    <ul class="right">
+                        <li class="has-dropdown">
+                            <a href="#">Right Button Dropdown</a>
+                            <ul class="dropdown">
+                                <li><a href="#">First link in dropdown</a></li>
+                                <li><a href="#">Active link in dropdown</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <!-- Left Nav Section -->
+                    <ul class="left">
+                        <li><a href="#">Left Nav Button</a></li>
+                    </ul>
+                </section>
+            </nav>
+        </div>
+
+
+
+        <script type="text/template" id="player_tpl">
+            <div class="large-12 columns <%= data.id %>">
+                <ul class="pricing-table">
+                    <li class="title"><%= data.user.nick %></li>
+                    <li class="price">Partidas jugasa</li>
+                    <li class="description">Puntuacion</li>
+                    <li class="cta-button"><a class="button" href="javascript:retarJugador('<%= data.id %>')">Retar</a></li>
+                </ul>
+            </div>
+        </script>
+
+        <h2 class="large-12 columns">Esperando rival</h2>
+        <div id="players"></div>
+        <hr>
+
+        <script type="text/template" id="player_oucpado_tpl">
+            <div class="large-12 columns <%= data.id %>" style="display:none">
+                <ul class="pricing-table">
+                    <li class="title"><%= data.user.nick %></li>
+                    <li class="price">Partidas jugasa</li>
+                    <li class="description">Puntuacion</li>
+                </ul>
+            </div>
+        </script>
+
+        <h2 class="large-12 columns">Ocupados</h2>
+        <div id="players-ocupados"></div>
+        <hr>
+
+    </div>
+
+
+    </div>
+
+    <div class="page" id="posicion_piezas">
+        <h1>Piezas</h1>
+    </div>
+
+    <div class="page" id="reto">
+        <h1>Quieres iniciar partida?</h1>
+        <a class="button large" href="javascript:aceptar_reto()">Aceptar</a> &nbsp; <a class="button large" href="javascript:cancelar_reto()">Cancelar</a>
+    </div>
+
+    <div class="page" id="tienda">
+        <h1>Tienda</h1>
+    </div>
+
+    <div class="page" id="top_usuarios">
+        <h1>Top usuarios</h1>
+    </div>
+</div>
+<div class="page" id="game"></div>
+
+
+<section id="info-window">
+    <div class="info ganador">
+        <h2>Enorabuena! has derrotado a tu rival!</h2>
+        <a href="#" class="button" onclick="irA('#inicio')">Ir a inicio</a>
+    </div>
+
+    <div class="info perdedor">
+        <h2>Tu rival te ha derrotado... Ánimo no es el fín, otra vez será</h2>
+        <a href="#" class="button" onclick="irA('#inicio')">Ir a inicio</a>
+    </div>
+
+    <div class="info perdedor">
+        <h2>Tu rival te ha derrotado... Ánimo no es el fín, otra vez será</h2>
+        <a href="#" class="button" onclick="irA('#inicio')">Ir a inicio</a>
+    </div>
+
+    <div class="info ficha-vs-ficha row">
+        <div class="small-6 columns ficha-azul">
+            <h3 style="color:#fff">FICHA AZUL</h3>
+            <img class="img-ficha-azul">
+        </div>
+        <div class="small-6 columns ficha-roja">
+            <h3 style="color:#fff">FICHA ROJA</h3>
+            <img class="img-ficha-roja" >
+        </div>
+    </div>
+
+</section>
+
+
+<footer id="footer"></footer>
+
+
+
+
+
+
+
+
+</body>
+</html>
+
